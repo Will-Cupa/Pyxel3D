@@ -64,7 +64,8 @@ class Face:
 		   self.p2.screenCoord(camera) == (0,0) or \
 		   self.p3.screenCoord(camera) == (0,0)):
 			pass
-		elif self.p1.subPoints(camera).dotProduct(self.getNormal()) < 0:
+		elif self.p1.screenCoord(camera)[0] > self.p2.screenCoord(camera)[0]:
+		#if self.p1.subPoints(camera).dotProduct(self.getNormal()) < 0:
 			if self.norm:
 				pyxel.line(WIDTH/2, HEIGHT/2, *self.getNormal().screenCoord(camera), 6)
 				print(self.p1.subPoints(camera).dotProduct(self.getNormal()))
@@ -88,11 +89,11 @@ p4 = Point(0,0,0)
 p5 = Point(-10,10,10)
 p6 = Point(-10,0,10)
 
-f1 = Face(p2,p3,p1, 1, True)
-f2 = Face(p4,p5,p6, 2, True)
+f1 = Face(p1,p2,p3, 1, True)
+f2 = Face(p6,p4,p5, 2, True)
 
-f3 = Face(p2,p3,p5, 4, False)
-f4 = Face(p5,p6,p3, 4, False)
+f3 = Face(p3,p5,p2, 4, False)
+f4 = Face(p3,p5,p6, 4, False)
 
 obj = Object([f1,f2,f3,f4])
 
