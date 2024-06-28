@@ -1,9 +1,54 @@
 import pyxel
 
-
 WIDTH = 1920
 HEIGHT = 1080
-FOV = 85
+FOV = 150
+
+
+def readObjFile(file):
+	f = open(file, "r")
+
+	pointTab = []
+	faceTab = []
+
+	for line in f:
+	  if line.split()[0] == 'v':
+	  	x = float(line.split()[1])
+	  	y = float(line.split()[2])
+	  	z = float(line.split()[3])
+	  	pointTab.append(Point(x,y,z))
+	  if line.split()[0] == 'f':
+	  	s = ''
+	  	for let in line.split()[1]:
+	  		if let == '/' or let == ' ' or let == '\n':
+	  			break
+	  		else:
+	  			s += let
+
+	  	p1 = pointTab[int(s)-1]
+
+	  	s = ''
+	  	for let in line.split()[2]:
+	  		if let == '/' or let == ' ' or let == '\n':
+	  			break
+	  		else:
+	  			s += let
+
+	  	p2 = pointTab[int(s)-1]
+
+	  	s = ''
+	  	for let in line.split()[3]:
+	  		if let == '/' or let == ' ' or let == '\n':
+	  			break
+	  		else:
+	  			s += let
+
+	  	p3 = pointTab[int(s)-1]
+
+	  	faceTab.append(Face(p1,p2,p3,8, False))
+
+	return Object(faceTab)
+
 
 
 class Point:
@@ -35,7 +80,7 @@ class Point:
 
 
 	def screenCoord(self, camera):
-		Dx = self.x*(-1) - camera.x
+		Dx = self.x - camera.x
 		Dy = self.y - camera.y
 		Dz = self.z - camera.z
 
@@ -97,6 +142,8 @@ f4 = Face(p3,p5,p6, 4, False)
 
 obj = Object([f1,f2,f3,f4])
 
+obj2 = readObjFile("MahindraThar.obj")
+
 cam = Point(1,1,1)
 
 
@@ -119,7 +166,7 @@ class App:
 
     def draw(self):
         pyxel.cls(3)
-        obj.draw(cam)
+        obj2.draw(cam)
         pyxel.line(WIDTH/2,HEIGHT/2 -10,WIDTH/2,HEIGHT/2 +10, 0)
         
         
