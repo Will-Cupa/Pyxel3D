@@ -64,6 +64,11 @@ class Point:
 		self.y += other.y
 		self.z += other.z
 
+	def scale(self, val):
+		self.x *= val
+		self.y *= val
+		self.z *= val
+
 	def subPoints(self, other):
 		return Point(self.x - other.x, self.y - other.y, self.z - other.z)
 
@@ -82,8 +87,10 @@ class Point:
 					 self.x*other.y - self.y*other.x)
 
 	def dotProduct(self, other):
-		return self.x + other.x * self.y + other.y * self.z + other.z
+		return self.x * other.x + self.y * other.y + self.z * other.z
 
+	def normalize(self):
+		return self.divide(self.vectorLength())
 
 	def screenCoord(self, camera):
 		Dx = self.x - camera.x
@@ -108,25 +115,33 @@ class Face:
 		v1 = self.p1.vectorTo(self.p2)
 		v2 = self.p1.vectorTo(self.p3)
 		normal = v1.crossProduct(v2)
-		return normal.divide(normal.vectorLength())
+		return normal.normalize()
 
-
+	def scale(self, val):
+		p1.scale(val)
+		p2.scale(val)
+		p3.scale(val)
 
 	def draw(self, camera):
+		
 		if(self.p1.screenCoord(camera) == (0,0) or \
 		   self.p2.screenCoord(camera) == (0,0) or \
 		   self.p3.screenCoord(camera) == (0,0)):
 			pass
-		elif self.p1.vectorTo(camera).dotProduct(self.getNormal()) < 0:
-			if self.norm:
-				print(self.p1.subPoints(camera).dotProduct(self.getNormal()))
-			pyxel.tri(*self.p1.screenCoord(camera), *self.p2.screenCoord(camera), *self.p3.screenCoord(camera), self.col)
+
+		elif camera.vectorTo(p1).normalize().dotProduct(self.getNormal()) < 0:
+			pyxel.trib(*self.p1.screenCoord(camera), *self.p2.screenCoord(camera), *self.p3.screenCoord(camera), self.col)
+			
 
 
 
 class Object:
 	def __init__(self, faceList):
 		self.faceList = faceList
+
+	def scale(self, val):
+		for face in self.faceList:
+			face.scale(val)
 
 	def draw(self, camera):
 		for face in self.faceList:
@@ -148,10 +163,12 @@ f4 = Face(p3,p5,p6, 4, False)
 
 obj = Object([f1,f2,f3,f4])
 
-obj2 = readObjFile("MahindraThar.obj")
+obj2 = readObjFile("cube.obj")
+
+
 
 cam = Point(1,1,1)
-
+light = Point(1,0,0)
 
 
 class App:
@@ -168,11 +185,16 @@ class App:
     	if pyxel.btn(pyxel.KEY_Q):
     		cam.x -= 1
     	elif pyxel.btn(pyxel.KEY_D):
-    		cam.x +=1
+    		cam.x += 1
+
+    	if pyxel.btn(pyxel.KEY_E):
+    		cam.y -= 1
+    	elif pyxel.btn(pyxel.KEY_A):
+    		cam.y += 1
 
     def draw(self):
         pyxel.cls(3)
-        obj.draw(cam)
+        obj2.draw(cam)
         pyxel.line(WIDTH/2,HEIGHT/2 -10,WIDTH/2,HEIGHT/2 +10, 0)
         
         
