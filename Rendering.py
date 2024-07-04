@@ -52,6 +52,9 @@ def readObjFile(file):
 
 
 
+class Vector:
+	pass
+
 class Point:
 	def __init__(self, x, y, z):
 		self.x = x
@@ -110,6 +113,7 @@ class Face:
 		self.p3 = p3
 		self.col = col
 		self.norm = norm
+		self.maxShadow = 1
 
 	def getNormal(self):
 		v1 = self.p1.vectorTo(self.p2)
@@ -129,9 +133,17 @@ class Face:
 		   self.p3.screenCoord(camera) == (0,0)):
 			pass
 
-		elif camera.vectorTo(p1).normalize().dotProduct(self.getNormal()) < 0:
-			pyxel.trib(*self.p1.screenCoord(camera), *self.p2.screenCoord(camera), *self.p3.screenCoord(camera), self.col)
-			
+		elif camera.vectorTo(p1).normalize().dotProduct(self.getNormal()) < 0: 
+			print(self.getNormal().dotProduct(light))
+			shadow = self.getNormal().dotProduct(light)
+		
+			pyxel.tri(*self.p1.screenCoord(camera), *self.p2.screenCoord(camera), *self.p3.screenCoord(camera), self.col)
+
+			pyxel.dither(self.maxShadow + shadow)
+			pyxel.tri(*self.p1.screenCoord(camera), *self.p2.screenCoord(camera), *self.p3.screenCoord(camera), 0)
+			pyxel.dither(1)
+
+
 
 
 
@@ -168,7 +180,7 @@ obj2 = readObjFile("cube.obj")
 
 
 cam = Point(1,1,1)
-light = Point(1,0,0)
+light = Point(1,-0.5,0)
 
 
 class App:
