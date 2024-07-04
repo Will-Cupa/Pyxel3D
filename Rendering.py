@@ -1,4 +1,5 @@
 import pyxel
+import math 
 
 WIDTH = 1920
 HEIGHT = 1080
@@ -66,9 +67,14 @@ class Point:
 	def subPoints(self, other):
 		return Point(self.x - other.x, self.y - other.y, self.z - other.z)
 
+	def divide(self, val):
+		return Point(self.x/val,self.y/val,self.z/val)
+
 	def vectorTo(self, other):
 		return Point(other.x - self.x, other.y - self.y, other.z - self.z)
 
+	def vectorLength(self):
+		return math.sqrt(self.x**2 + self.y**2 + self.z**2)
 
 	def crossProduct(self, other):
 		return Point(self.y*other.z - self.z*other.y, \
@@ -100,8 +106,10 @@ class Face:
 
 	def getNormal(self):
 		v1 = self.p1.vectorTo(self.p2)
-		v2 = self.p2.vectorTo(self.p3)
-		return v1.crossProduct(v2)
+		v2 = self.p1.vectorTo(self.p3)
+		normal = v1.crossProduct(v2)
+		return normal.divide(normal.vectorLength())
+
 
 
 	def draw(self, camera):
@@ -109,11 +117,8 @@ class Face:
 		   self.p2.screenCoord(camera) == (0,0) or \
 		   self.p3.screenCoord(camera) == (0,0)):
 			pass
-		else:
-		#if self.p1.screenCoord(camera)[0] > self.p2.screenCoord(camera)[0]:
-		#if self.p1.subPoints(camera).dotProduct(self.getNormal()) < 0:
+		elif self.p1.vectorTo(camera).dotProduct(self.getNormal()) < 0:
 			if self.norm:
-				pyxel.line(WIDTH/2, HEIGHT/2, *self.getNormal().screenCoord(camera), 6)
 				print(self.p1.subPoints(camera).dotProduct(self.getNormal()))
 			pyxel.tri(*self.p1.screenCoord(camera), *self.p2.screenCoord(camera), *self.p3.screenCoord(camera), self.col)
 
@@ -138,12 +143,12 @@ p6 = Point(-10,0,10)
 f1 = Face(p1,p2,p3, 1, True)
 f2 = Face(p6,p4,p5, 2, True)
 
-f3 = Face(p3,p5,p2, 4, False)s
+f3 = Face(p3,p5,p2, 4, False)
 f4 = Face(p3,p5,p6, 4, False)
 
 obj = Object([f1,f2,f3,f4])
 
-obj2 = readObjFile("cube.obj")
+obj2 = readObjFile("MahindraThar.obj")
 
 cam = Point(1,1,1)
 
@@ -167,7 +172,7 @@ class App:
 
     def draw(self):
         pyxel.cls(3)
-        obj2.draw(cam)
+        obj.draw(cam)
         pyxel.line(WIDTH/2,HEIGHT/2 -10,WIDTH/2,HEIGHT/2 +10, 0)
         
         
